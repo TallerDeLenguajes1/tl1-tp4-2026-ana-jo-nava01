@@ -14,10 +14,15 @@ typedef struct Nodo{
     struct Nodo *Siguiente;
 }Nodo;
 
+void limpiarBuffer() {
+    int c;
+    while((c = getchar()) != '\n' && c != EOF) {}
+}
 Nodo *ListaVacia();
 Nodo *CrearNodo(Tarea dato);
 void InsertarNodo(Nodo **start, Nodo *nodo);
 void ListarNodos(Nodo *start);
+Nodo *BuscarTareaPorID(Nodo *start, int id);
 
 int main() {
     srand(time(NULL));
@@ -37,7 +42,7 @@ int main() {
         tarea.TareaID = id;
         printf("==TAREA %d==\n", id);
         printf("Ingrese la descripcion: ");
-        scanf("%s", buff);
+        gets(buff);
         int tamDesc = strlen(buff);
         tarea.Descripcion = (char *)malloc(tamDesc * sizeof(char) + 1);
         strcpy(tarea.Descripcion, buff);
@@ -50,14 +55,38 @@ int main() {
         printf("===========\n");
 
         printf("Desea seguir ingresando tareas pendientes? Y/N: ");
-        scanf(" %c", &opcion);
+        scanf("%c", &opcion);
+        limpiarBuffer();
         id++;
     }while(opcion == 'Y' || opcion == 'y');
 
     //Elegir tareas realizadas
+    do {
+        int idBuscada;
+        printf("Ingrese el ID de la tarea que fue realizada: ");
+        scanf("%d", &idBuscada);
+        Nodo *buscada;
+        buscada = (Nodo *)malloc(sizeof(Nodo)); //necesario?
+        buscada = BuscarTareaPorID(TareasPendientes, idBuscada);
+        if(buscada == NULL) {
+            printf("No se pudo encontrar esa tarea: ");
+        } else {
+            InsertarNodo(&TareasRealizadas, buscada);
+        }
+
+        printf("Desea seguir ingresando tareas realizadas? Y/N: ");
+        scanf(" %c", &opcion);
+        if(opcion == 'N' || opcion == 'n') { // preguntar
+            free(buscada);
+        }
+
+    }while(opcion == 'Y' || opcion == 'y');
 
     //Listar tareas pendientes y realizadas
+    printf("==TAREAS PENDIENTES==\n");
     ListarNodos(TareasPendientes);
+    printf("==TAREAS REALIZADAS==\n");
+    ListarNodos(TareasRealizadas);
 
     //Consultar tareas pendientes/realizadas por id o palabra clave
 
@@ -82,14 +111,23 @@ void InsertarNodo(Nodo **start, Nodo *nodo) {
 }
 
 void ListarNodos(Nodo *start) {
-    Nodo *aux = start;
-    while(aux != NULL) {
-        printf("==TAREA %d==\n", aux->T.TareaID);
+    while(start != NULL) {
+        printf("==TAREA %d==\n", start->T.TareaID);
         printf("Descripcion: ");
-        puts(aux->T.Descripcion);
+        puts(start->T.Descripcion);
         
-        printf("Duracion: %d\n", aux->T.Duracion);
+        printf("Duracion: %d\n", start->T.Duracion);
 
-        aux = aux->Siguiente;
+        start = start->Siguiente;
     }
+}
+
+Nodo *BuscarTareaPorID(Nodo *start, int id) {
+    while(start != NULL) {
+        if(start->T.TareaID == id) {
+            return start;
+        }
+        start = start->Siguiente;
+    }
+    return NULL;
 }
