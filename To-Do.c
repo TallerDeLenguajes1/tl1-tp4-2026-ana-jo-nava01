@@ -24,7 +24,7 @@ void InsertarNodo(Nodo **start, Nodo *nodo);
 Nodo *EliminarNodo(Nodo **start, int id);
 void ListarNodos(Nodo **start);
 Nodo *BuscarTareaPorID(Nodo **start, int id);
-void BuscarPorPalabraClave(Nodo *start, char buff[]);
+int BuscarPorPalabraClave(Nodo **start, char buff[]);
 
 int main() {
     srand(time(NULL));
@@ -80,9 +80,6 @@ int main() {
 
         printf("Desea seguir ingresando tareas realizadas? Y/N: ");
         scanf(" %c", &opcion);
-        /*if(opcion == 'N' || opcion == 'n') { // preguntar
-            free(buscada);
-        }*/
 
     }while(opcion == 'Y' || opcion == 'y');
 
@@ -93,6 +90,14 @@ int main() {
     ListarNodos(&TareasRealizadas);
 
     //Consultar tareas pendientes/realizadas por id o palabra clave
+    printf("Ingrese la palabra clave: ");
+    scanf("%s", buff);
+    if(BuscarPorPalabraClave(&TareasPendientes, buff) == 0) {
+        printf("No hubo coincidencias para tareas pendientes.\n");
+    }
+    if(BuscarPorPalabraClave(&TareasRealizadas, buff) == 0) {
+        printf("No hubo coincidencias para tareas realizadas.\n");
+    }
 
     return 0;
 }
@@ -154,14 +159,19 @@ Nodo *BuscarTareaPorID(Nodo **start, int id) {
     return aux;
 }
 
-void BuscarPorPalabraClave(Nodo *start, char buff[]) {
-    while(start != NULL) {
-        if(strstr(start->T.Descripcion, buff) != NULL) {
-            printf("- Tarea %d -\n", start->T.TareaID);
+int BuscarPorPalabraClave(Nodo **start, char buff[]) {
+    int coincidencia = 0;
+    Nodo *aux = (*start);
+    while(aux != NULL) {
+        if(strstr(aux->T.Descripcion, buff) != NULL) {
+            printf("- Tarea %d -\n", aux->T.TareaID);
             printf("Descripcion: ");
-            puts(start->T.Descripcion);
+            puts(aux->T.Descripcion);
+            coincidencia = 1;
         }
 
-        start = start->Siguiente;
+        aux = aux->Siguiente;
     }
+
+    return coincidencia;
 }
